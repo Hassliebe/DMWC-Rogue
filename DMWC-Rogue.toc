@@ -1,0 +1,9 @@
+## Interface: 11320
+## Title: DoMeWhen Classic - Rogue
+## Author: Winterz
+## Notes: Rogue Rotation for DoMeWhen Classic
+## DefaultState: Disabled
+## Dependencies: DoMeWhen-Classic
+
+Settings.lua
+Rotation.lua

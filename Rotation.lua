@@ -47,6 +47,12 @@ local function DEF()
 			return
 		end
 	end
+	
+	--if Setting("Gouge") and HP < Setting("Gouge Percent") then
+	--	if Spell.Gouge:Cast(Target) then
+	--		return
+	--	end
+	--end
 end
 
 function Rogue.Rotation()
@@ -66,6 +72,10 @@ function Rogue.Rotation()
 	-----------------
 	-- DPS --
 	-----------------
+	-- Dont attack while Gouge
+	--if Target and Target.ValidEnemy and Debuff.Gouge:Remain(Target) > 1 then
+	--	stopAttack()
+	--end
 	-- Sprint always
 	if Setting("Sprint") and not Buff.Sprint:Exist(Player) and Player.Moving then
 		if Spell.Sprint:Cast(Player) then
@@ -109,13 +119,13 @@ function Rogue.Rotation()
 		end
 	end
 	-- Eviscerate @ 5 CP
-	if GetComboPoints("player", "target") > 0 and Target and Target.TTD < Buff.SliceAndDice:Remain(Player) then
+	if GetComboPoints("player", "target") > 1 and Target and Target.TTD < Buff.SliceAndDice:Remain(Player) then
 		if Spell.Eviscerate:Cast(Target) then
 			return
 		end
 	end
 		-- Spam Sinister Strike
-	if Setting("Sinister Strike") and Target and Target.ValidEnemy and Player.Combat and Player.Power > 45 or (Talent.ImprovedSinisterStrike ==2 and Player.Power >= 40) then
+	if Setting("Sinister Strike") and Target and Target.ValidEnemy and Player.Combat and Player.Power > 45 or (Talent.ImprovedSinisterStrike == 2 and Player.Power >= 40) then
 		if Spell.SinisterStrike:Cast(Target) then
 			return
 		end

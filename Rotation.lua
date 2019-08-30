@@ -2,12 +2,14 @@ local DMW = DMW
 local Rogue = DMW.Rotations.ROGUE
 local Rotation = DMW.Helpers.Rotation
 local Setting = DMW.Helpers.Rotation.Setting
-local Player, Pet, Buff, Debuff, Spell, Target, Talent, Item, GCD, CDs, HUD, Enemy40Y, Enemy40YC
+local Player, Pet, Buff, Debuff, Spell, Target, Talent, Item, GCD, CDs, HUD, Enemy40Y, Enemy40YC, ComboPoints, HP
+local hasMainHandEnchant,_ ,_ , _, hasOffHandEnchant = GetWeaponEnchantInfo()
 
 local function Locals()
     Player = DMW.Player
     Pet = DMW.Player.Pet
     Buff = Player.Buffs
+	HP = Player.HP
     Debuff = Player.Debuffs
     Spell = Player.Spells
     Talent = Player.Talents
@@ -17,33 +19,85 @@ local function Locals()
     HUD = DMW.Settings.profile.HUD
     CDs = Player:CDs()
     Enemy40Y, Enemy40YC = Player:GetEnemies(40)
+	Enemy8Y, Enemy8YC = Player:GetEnemies(8)
+end
+
+local function Poison()
+
+	------------------
+	--- Poisons --- 
+	------------------
+	if GetWeaponEnchantInfo() == false then	
+        RunMacroText("/use Instant Poison")
+		RunMacroText("/use 16")
+            return 
+        end
+	if select(5, GetWeaponEnchantInfo()) == false then	
+        RunMacroText("/use Instant Poison")
+		RunMacroText("/use 17")
+            return 
+        end
+end
+local function DEF()
+	------------------
+	--- Defensives ---
+	------------------
+	if Setting("Evasion") and HP < Setting("Evasion Percent") and Enemy8YC > 0 then
+		if Spell.Evasion:Cast(Player) then
+			return
+		end
+	end
 end
 
 function Rogue.Rotation()
     Locals()
+	
+	if Player.Combat then
+		if DEF() then
+			return true
+		end
+	end
+	
+	if not Player.Combat and not Player.Moving then
+		if Poison() then
+			return true
+		end
+	end
 	-----------------
 	-- DPS --
 	-----------------
+	-- Sprint always
+	if Setting("Sprint") and not Buff.Sprint:Exist(Player) and Player.Moving then
+		if Spell.Sprint:Cast(Player) then
+			return 
+		end
+	end
 	-- Stealth when Approaching 
 	if Setting("AutoStealth") and Target and Target.ValidEnemy and Target.Distance > 5 and Target.Distance < 20 and not Player.Combat and not Buff.Stealth:Exist(Player) then
 		if Spell.Stealth:Cast() then
 			return
 		end
 	end
+	-- Riposte
+	if Target and Target.ValidEnemy then
+		if Spell.Riposte:Cast(Target) then
+			return
+		end
+	end
 	--Ambush
-	if Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and not ObjectIsFacing("target", "player") then
+	if Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
 		if Spell.Ambush:Cast(Target) then
 			return
 		end
 	end
 	--Garrote
-	if Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and not ObjectIsFacing("target", "player") then
+	if Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
 		if Spell.Garrote:Cast(Target) then
 			return
 		end
 	end
 	-- Backstab if possible
-	if Target and Target.ValidEnemy and not ObjectIsFacing("target", "player") then
+	if Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
 		if Spell.Backstab:Cast(Target) then
 			return
 		end
@@ -55,28 +109,20 @@ function Rogue.Rotation()
 		end
 	end
 	-- Eviscerate @ 5 CP
-	if GetComboPoints("player", "target") == 5 then
+	if GetComboPoints("player", "target") > 0 and Target and Target.TTD < Buff.SliceAndDice:Remain(Player) then
 		if Spell.Eviscerate:Cast(Target) then
 			return
 		end
 	end
 		-- Spam Sinister Strike
-	if Setting("Sinister Strike") and Target and Target.ValidEnemy and Player.Power > 40 then
+	if Setting("Sinister Strike") and Target and Target.ValidEnemy and Player.Combat and Player.Power > 45 or (Talent.ImprovedSinisterStrike ==2 and Player.Power >= 40) then
 		if Spell.SinisterStrike:Cast(Target) then
 			return
 		end
 	end	
 	-- Autoattack everything in range
-    if Setting("Auto Attack") and Target and Target.ValidEnemy and Player.Combat and Target.Distance < 5 then
+    if Setting("Auto Attack") and Target and Target.ValidEnemy and Target.Distance < 5 then
         StartAttack()
 	end
-	------------------
-	--- Defensives ---
-	------------------
-	--if Setting("Evasion") and 
-		--if Spell.Evasion:Cast() then
-		--	return
-		--end
-	--end
-		
+	
 end

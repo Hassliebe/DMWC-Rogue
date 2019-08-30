@@ -22,5 +22,7 @@ function Rogue.Settings()
     UI.AddToggle("Eviscerate", nil, true)
     UI.AddToggle("Slice and Dice", nil, true)
 	UI.AddHeader("Defensives")
-	UI.AddToggle("Evasion")
+	UI.AddRange("Evasion Percent", nil, 0, 100, 1, 99)
+	UI.AddHeader("Misc")
+	UI.AddToggle("Sprint", "Always Sprint")
 end

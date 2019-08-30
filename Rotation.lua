@@ -27,12 +27,12 @@ local function Poison()
 	------------------
 	--- Poisons --- 
 	------------------
-	if GetWeaponEnchantInfo() == false then	
+	if Setting("Instant Poison") and GetWeaponEnchantInfo() == false then	
         RunMacroText("/use Instant Poison")
 		RunMacroText("/use 16")
             return 
         end
-	if select(5, GetWeaponEnchantInfo()) == false then	
+	if Setting("Instant Poison") and select(5, GetWeaponEnchantInfo()) == false then	
         RunMacroText("/use Instant Poison")
 		RunMacroText("/use 17")
             return 

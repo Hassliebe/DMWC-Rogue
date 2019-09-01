@@ -2,7 +2,7 @@ local DMW = DMW
 local Rogue = DMW.Rotations.ROGUE
 local Rotation = DMW.Helpers.Rotation
 local Setting = DMW.Helpers.Rotation.Setting
-local Player, Pet, Buff, Debuff, Spell, Target, Talent, Item, GCD, CDs, HUD, Enemy40Y, Enemy40YC, ComboPoints, HP
+local Player, Pet, Buff, Debuff, Spell, Target, Talent, Item, GCD, CDs, HUD, Enemy40Y, Enemy40YC, ComboPoints, HP, Enemy8YC, Enemy8Y
 local hasMainHandEnchant,_ ,_ , _, hasOffHandEnchant = GetWeaponEnchantInfo()
 
 local function Locals()
@@ -27,16 +27,26 @@ local function Poison()
 	------------------
 	--- Poisons --- 
 	------------------
-	if Setting("Instant Poison") and GetWeaponEnchantInfo() == false then	
+	if Setting("Instant Poison 1") and GetWeaponEnchantInfo() == false then	
         RunMacroText("/use Instant Poison")
 		RunMacroText("/use 16")
             return 
         end
-	if Setting("Instant Poison") and select(5, GetWeaponEnchantInfo()) == false then	
+	if Setting("Instant Poison 1") and select(5, GetWeaponEnchantInfo()) == false then	
         RunMacroText("/use Instant Poison")
 		RunMacroText("/use 17")
             return 
         end
+	if Setting("Instant Poison 2") and GetWeaponEnchantInfo() == false then	
+        RunMacroText("/use Instant Poison II")
+		RunMacroText("/use 16")
+            return 
+        end
+	if Setting("Instant Poison 2") and select(5, GetWeaponEnchantInfo()) == false then	
+        RunMacroText("/use Instant Poison II")
+		RunMacroText("/use 17")
+            return 
+        end	
 end
 local function DEF()
 	------------------
@@ -94,14 +104,26 @@ function Rogue.Rotation()
 			return
 		end
 	end
+	-- Cheap Shot Opener
+	if Setting("Opener") == 3 and Target and Target.ValidEnemy and Buff.Stealth:Exist(Player) then
+		if Spell.CheapShot:Cast(Target) then
+			return
+		end
+	end
+	-- Pick Pocket
+	--if Setting("Pick Pocket") and	 Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
+	--	if Spell.PickPocket:Cast(Target) then
+	--		return
+	--	end
+	--end
 	--Ambush
-	if Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
+	if Setting("Opener") == 1 and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
 		if Spell.Ambush:Cast(Target) then
 			return
 		end
 	end
 	--Garrote
-	if Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
+	if Setting("Opener") == 2 and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
 		if Spell.Garrote:Cast(Target) then
 			return
 		end
@@ -118,6 +140,12 @@ function Rogue.Rotation()
 			return
 		end
 	end
+	-- Eviscerate @ 1 CP
+	if GetComboPoints("player", "target") == 5 and Target then
+		if Spell.Eviscerate:Cast(Target) then
+			return
+		end
+	end
 	-- Eviscerate @ 5 CP
 	if GetComboPoints("player", "target") > 1 and Target and Target.TTD < Buff.SliceAndDice:Remain(Player) then
 		if Spell.Eviscerate:Cast(Target) then
@@ -125,13 +153,13 @@ function Rogue.Rotation()
 		end
 	end
 		-- Spam Sinister Strike
-	if Setting("Sinister Strike") and Target and Target.ValidEnemy and Player.Combat and Player.Power > 45 or (Talent.ImprovedSinisterStrike == 2 and Player.Power >= 40) then
+	if Setting("Sinister Strike") and Target and Target.ValidEnemy and Player.Combat and Player.Power >= 40 and GetComboPoints("player", "target") < 5 then
 		if Spell.SinisterStrike:Cast(Target) then
 			return
 		end
 	end	
 	-- Autoattack everything in range
-    if Setting("Auto Attack") and Target and Target.ValidEnemy and Target.Distance < 5 then
+    if Setting("Auto Attack") and Target and Target.ValidEnemy and Target.Distance <5 and Player.Combat then
         StartAttack()
 	end
 	

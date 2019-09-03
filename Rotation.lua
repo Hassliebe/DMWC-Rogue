@@ -2,7 +2,7 @@ local DMW = DMW
 local Rogue = DMW.Rotations.ROGUE
 local Rotation = DMW.Helpers.Rotation
 local Setting = DMW.Helpers.Rotation.Setting
-local Player, Pet, Buff, Debuff, Spell, Target, Talent, Item, GCD, CDs, HUD, Enemy40Y, Enemy40YC, ComboPoints, HP, Enemy8YC, Enemy8Y
+local Player, Pet, Buff, Debuff, Spell, Target, Talent, Item, GCD, CDs, HUD, Enemy40Y, Enemy40YC, ComboPoints, HP, Enemy8YC, Enemy8Y, Enemy60Y, Enemy60YC
 local hasMainHandEnchant,_ ,_ , _, hasOffHandEnchant = GetWeaponEnchantInfo()
 
 local function Locals()
@@ -18,6 +18,7 @@ local function Locals()
     Target = Player.Target or false
     HUD = DMW.Settings.profile.HUD
     CDs = Player:CDs()
+	Enemy60Y, Enemy60YC = Player:GetEnemies(60)
     Enemy40Y, Enemy40YC = Player:GetEnemies(40)
 	Enemy8Y, Enemy8YC = Player:GetEnemies(8)
 end
@@ -27,23 +28,33 @@ local function Poison()
 	------------------
 	--- Poisons --- 
 	------------------
-	if Setting("Instant Poison 1") and GetWeaponEnchantInfo() == false then	
+	if Setting("Instant Poison") == 2 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
         RunMacroText("/use Instant Poison")
 		RunMacroText("/use 16")
             return 
         end
-	if Setting("Instant Poison 1") and select(5, GetWeaponEnchantInfo()) == false then	
+	if Setting("Instant Poison") == 2 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
         RunMacroText("/use Instant Poison")
 		RunMacroText("/use 17")
             return 
         end
-	if Setting("Instant Poison 2") and GetWeaponEnchantInfo() == false then	
+	if Setting("Instant Poison") == 3 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
         RunMacroText("/use Instant Poison II")
 		RunMacroText("/use 16")
             return 
         end
-	if Setting("Instant Poison 2") and select(5, GetWeaponEnchantInfo()) == false then	
+	if Setting("Instant Poison") == 3 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
         RunMacroText("/use Instant Poison II")
+		RunMacroText("/use 17")
+            return 
+        end	
+	if Setting("Instant Poison") == 4 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
+        RunMacroText("/use Instant Poison III")
+		RunMacroText("/use 16")
+            return 
+        end
+	if Setting("Instant Poison") == 4 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
+        RunMacroText("/use Instant Poison III")
 		RunMacroText("/use 17")
             return 
         end	
@@ -128,32 +139,44 @@ function Rogue.Rotation()
 			return
 		end
 	end
+	-- Blade Flurry
+	if Setting("Blade Flurry") == 1 and Player.Power >= 25 and Player.Combat or (Setting("Blade Flurry") == 2 and Enemy8YC > 1 and Player.Combat and Player.Power >= 25) then
+		if Spell.BladeFlurry:Cast(Player) then
+			return
+		end
+	end
 	-- Backstab if possible
 	if Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
 		if Spell.Backstab:Cast(Target) then
 			return
 		end
 	end
+		-- Eviscerate < 15%
+	if GetComboPoints("player", "target") > 1 and Target and Target.Health < 15 then
+		if Spell.Eviscerate:Cast(Target) then
+			return
+		end
+	end
 	-- maintain SnD
-	if Setting("Slice and Dice") and GetComboPoints("player", "target") > 0 and not Buff.SliceAndDice:Exist(Player) then
+	if Setting("Slice and Dice") and GetComboPoints("player", "target") > 0 and not Buff.SliceAndDice:Exist(Player) and Target.TTD > 5 then
 		if Spell.SliceAndDice:Cast() then
 			return
 		end
 	end
-	-- Eviscerate @ 1 CP
+	-- Eviscerate @ 5 CP
 	if GetComboPoints("player", "target") == 5 and Target then
 		if Spell.Eviscerate:Cast(Target) then
 			return
 		end
 	end
-	-- Eviscerate @ 5 CP
+	-- Eviscerate > 1 CP
 	if GetComboPoints("player", "target") > 1 and Target and Target.TTD < Buff.SliceAndDice:Remain(Player) then
 		if Spell.Eviscerate:Cast(Target) then
 			return
 		end
 	end
 		-- Spam Sinister Strike
-	if Setting("Sinister Strike") and Target and Target.ValidEnemy and Player.Combat and Player.Power >= 40 and GetComboPoints("player", "target") < 5 then
+	if Setting("Sinister Strike") and Target and Target.ValidEnemy and Player.Power >= 40 and GetComboPoints("player", "target") < 5 and Player.Combat then
 		if Spell.SinisterStrike:Cast(Target) then
 			return
 		end

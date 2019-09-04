@@ -17,7 +17,7 @@ local function Locals()
 	ComboPoints = DMW.Player.ComboPoints
     Target = Player.Target or false
     HUD = DMW.Settings.profile.HUD
-    CDs = Player:CDs()
+    CDs = Player:CDs() and Target and Target.TTD > 5 and Target.Distance < 5
 	Enemy60Y, Enemy60YC = Player:GetEnemies(60)
     Enemy40Y, Enemy40YC = Player:GetEnemies(40)
 	Enemy8Y, Enemy8YC = Player:GetEnemies(8)
@@ -152,15 +152,23 @@ function Rogue.Rotation()
 		end
 	end
 		-- Eviscerate < 15%
-	if GetComboPoints("player", "target") > 1 and Target and Target.Health < 15 then
-		if Spell.Eviscerate:Cast(Target) then
-			return
+	if Setting("Eviscerate") then
+		for _,Unit in ipairs(Player:GetEnemies(5)) do
+			if GetComboPoints("player", "target") > 1 and Target and (Unit.TTD < 5 or Unit.HP < 15) then
+				if Spell.Eviscerate:Cast(Target) then
+					return
+				end
+			end
 		end
 	end
 	-- maintain SnD
-	if Setting("Slice and Dice") and GetComboPoints("player", "target") > 0 and not Buff.SliceAndDice:Exist(Player) and Target.TTD > 5 then
-		if Spell.SliceAndDice:Cast() then
-			return
+	if Setting("Slice and Dice") then
+		for _,Unit in ipairs(Player:GetEnemies(5)) do
+			if GetComboPoints("player", "target") > 0 and not Buff.SliceAndDice:Exist(Player) and Unit.TTD > 5 then
+				if Spell.SliceAndDice:Cast() then
+					return
+				end
+			end
 		end
 	end
 	-- Eviscerate @ 5 CP
@@ -170,9 +178,13 @@ function Rogue.Rotation()
 		end
 	end
 	-- Eviscerate > 1 CP
-	if GetComboPoints("player", "target") > 1 and Target and Target.TTD < Buff.SliceAndDice:Remain(Player) then
-		if Spell.Eviscerate:Cast(Target) then
-			return
+	if Setting("Eviscerate") then
+		for _,Unit in ipairs(Player:GetEnemies(5)) do
+			if GetComboPoints("player", "target") > 1 and Target and Unit.TTD < Buff.SliceAndDice:Remain(Player) then
+				if Spell.Eviscerate:Cast(Target) then
+					return
+				end
+			end
 		end
 	end
 		-- Spam Sinister Strike

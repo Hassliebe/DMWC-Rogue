@@ -140,7 +140,7 @@ function Rogue.Rotation()
 		end
 	end
 	-- Blade Flurry
-	if Setting("Blade Flurry") == 1 and Player.Power >= 25 and Player.Combat or (Setting("Blade Flurry") == 2 and Enemy8YC > 1 and Player.Combat and Player.Power >= 25) then
+	if Setting("Blade Flurry") == 2 and Player.Power >= 25 and Player.Combat or (Setting("Blade Flurry") == 3 and Enemy8YC > 1 and Player.Combat and Player.Power >= 25) then
 		if Spell.BladeFlurry:Cast(Player) then
 			return
 		end

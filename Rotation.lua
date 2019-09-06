@@ -139,6 +139,12 @@ function Rogue.Rotation()
 			return
 		end
 	end
+	-- Adrenaline Rush
+	if Setting("Adrenaline Rush") == 2 and Player.Combat or (Setting("Adrenaline Rush") == 3 and Enemy8YC > 1 and Player.Combat) then
+		if Spell.AdrenalineRush:Cast(Player) then
+			return
+		end
+	end
 	-- Blade Flurry
 	if Setting("Blade Flurry") == 2 and Player.Power >= 25 and Player.Combat or (Setting("Blade Flurry") == 3 and Enemy8YC > 1 and Player.Combat and Player.Power >= 25) then
 		if Spell.BladeFlurry:Cast(Player) then

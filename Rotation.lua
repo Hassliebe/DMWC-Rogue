@@ -58,6 +58,16 @@ local function Poison()
 		RunMacroText("/use 17")
             return 
         end	
+	if Setting("Instant Poison") == 5 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
+        RunMacroText("/use Instant Poison IV")
+		RunMacroText("/use 16")
+            return 
+        end
+	if Setting("Instant Poison") == 5 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
+        RunMacroText("/use Instant Poison IV")
+		RunMacroText("/use 17")
+            return 
+        end	
 end
 local function DEF()
 	------------------

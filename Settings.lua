@@ -14,7 +14,7 @@ function Rogue.Settings()
     --     }
     -- }
     UI.AddHeader("General")
-    UI.AddDropdown("Instant Poison", nil, {"OFF", "1", "2", "3"}, 1)
+    UI.AddDropdown("Instant Poison", nil, {"OFF", "1", "2", "3", "4"}, 1)
     UI.AddHeader("DPS")
     UI.AddToggle("Auto Attack", "Auto attack target in range", true)
 	UI.AddToggle("AutoStealth", nil, true)

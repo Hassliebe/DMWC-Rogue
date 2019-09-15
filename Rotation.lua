@@ -68,6 +68,16 @@ local function Poison()
 		RunMacroText("/use 17")
             return 
         end	
+	if Setting("Instant Poison") == 6 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
+        RunMacroText("/use Instant Poison V")
+		RunMacroText("/use 16")
+            return 
+        end
+	if Setting("Instant Poison") == 6 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
+        RunMacroText("/use Instant Poison V")
+		RunMacroText("/use 17")
+            return 
+        end	
 end
 local function DEF()
 	------------------
@@ -108,6 +118,13 @@ function Rogue.Rotation()
 	--	stopAttack()
 	--end
 	-- Sprint always
+	
+	-- Kick (only target because CP)
+	if Setting("Kick") and Target and Target.ValidEnemy and Target:Interrupt() then
+		if Spell.Kick:Cast(Target) then
+			return
+		end
+	end
 	if Setting("Sprint") and not Buff.Sprint:Exist(Player) and Player.Moving then
 		if Spell.Sprint:Cast(Player) then
 			return 

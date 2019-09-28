@@ -100,6 +100,7 @@ local function Poison()
     end	
 end
 local function DEF()
+
 	------------------
 	--- Defensives ---
 	------------------
@@ -131,6 +132,8 @@ local function DEF()
 	end
 
 end
+local function CDs()
+end
 
 function Rogue.Rotation()
     Locals()
@@ -155,17 +158,18 @@ function Rogue.Rotation()
 	--end
 	-- Sprint always
 	
-	-- Kick (only target because CP)
+	-- Open Clams
 	if Setting("Open Clams") and not Player.Combat then
 		RunMacroText("/script l=5;m=0;f=string.find;for b=0,4,1 do for s=1,GetContainerNumSlots(b),1 do n=GetContainerItemLink(b,s);if n and f(n,\"Clam\")then if f(n,\"Clam \")or f(n,\"Clams\")then b=b else l=b;m=s;end;end;end;end;if l<5 and m>0 then UseContainerItem(l,m)end")
 			return
 	end
-	
+	-- Kick (only target because CP)
 	if Setting("Kick") and Spell.Kick:IsReady() and Target and Target.ValidEnemy and Target:Interrupt() then
 		if Spell.Kick:Cast(Target) then
 			return
 		end
 	end
+	-- Sprint
 	if Setting("Sprint") and Spell.Sprint:IsReady() and not Buff.Sprint:Exist(Player) and Player.Moving then
 		if Spell.Sprint:Cast(Player) then
 			return 
@@ -183,15 +187,15 @@ function Rogue.Rotation()
 			return
 		end
 	end
-	-- Cheap Shot Opener
-	if Setting("Opener") == 4 and Spell.CheapShot:IsReady() and Target and Target.ValidEnemy and Buff.Stealth:Exist(Player) then
-		if Spell.CheapShot:Cast(Target) then
+	-- Pick Pocket
+	if Setting("Pick Pocket") and Spell.PickPocket:IsReady() and Target.CreatureType == "Humanoid" and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy then
+		if Spell.PickPocket:Cast(Target) then
 			return
 		end
 	end
-	-- Pick Pocket
-	if Setting("Pick Pocket") and Spell.PickPocket:IsReady() and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy then
-		if Spell.PickPocket:Cast(Target) then
+	-- Cheap Shot Opener
+	if Setting("Opener") == 4 and Spell.CheapShot:IsReady() and Target and Target.ValidEnemy and Buff.Stealth:Exist(Player) then
+		if Spell.CheapShot:Cast(Target) then
 			return
 		end
 	end
@@ -228,7 +232,7 @@ function Rogue.Rotation()
 		-- Eviscerate < 15%
 	if Setting("Eviscerate") and Spell.Eviscerate:IsReady() then
 		for _,Unit in ipairs(Player:GetEnemies(5)) do
-			if GetComboPoints("player", "target") > 1 and Target and (Unit.TTD < 5 or Unit.HP < 15) and Enemy8YC < 2 then
+			if GetComboPoints("player", "target") > 1 and Target and (Unit.TTD < 5 or Unit.HP < 15) and Enemy8YC < 2 and Buff.SliceAndDice:Remain(Player) > 4 then
 				if Spell.Eviscerate:Cast(Target) then
 					return
 				end
@@ -246,7 +250,7 @@ function Rogue.Rotation()
 		end
 	end
 	-- Eviscerate @ 5 CP
-	if GetComboPoints("player", "target") and Spell.Eviscerate:IsReady() == 5 and Target then
+	if GetComboPoints("player", "target") == 5 and Spell.Eviscerate:IsReady() and Target then
 		if Spell.Eviscerate:Cast(Target) then
 			return
 		end

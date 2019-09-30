@@ -188,7 +188,7 @@ function Rogue.Rotation()
 		end
 	end
 	-- Pick Pocket
-	if Setting("Pick Pocket") and Spell.PickPocket:IsReady() and Target.CreatureType == "Humanoid" and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy then
+	if Setting("Pick Pocket") and Spell.PickPocket:IsReady() and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and Target.CreatureType == "Humanoid" then
 		if Spell.PickPocket:Cast(Target) then
 			return
 		end

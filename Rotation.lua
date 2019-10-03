@@ -21,8 +21,58 @@ local function Locals()
 	Enemy60Y, Enemy60YC = Player:GetEnemies(60)
     Enemy40Y, Enemy40YC = Player:GetEnemies(40)
 	Enemy8Y, Enemy8YC = Player:GetEnemies(8)
+	if timeMH == nil then timeMH = DMW.Time end
+	if timeOH == nil then timeOH = DMW.Time end
 end
 
+local function getapdmg(offHand)
+          local useOH = offHand or false
+          local wdpsCoeff = 6
+          local ap = UnitAttackPower("player")
+          local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage("player")
+          local speed, offhandSpeed = UnitAttackSpeed("player")
+          if useOH and offhandSpeed then
+            local wSpeed = offhandSpeed * (1 + GetHaste() / 100)
+            local wdps = (minOffHandDamage + maxOffHandDamage) / wSpeed / percent - ap / wdpsCoeff
+            return (ap + wdps * wdpsCoeff) * 0.5
+          else
+            local wSpeed = speed * (1 + GetHaste() / 100)
+            local wdps = (minDamage + maxDamage) / 2 / wSpeed / percent - ap / wdpsCoeff
+            return ap + wdps * wdpsCoeff
+          end
+    end
+
+local function evisDmg()
+        local apMod         = getapdmg()
+        local rtcoef       = 0.35
+        local auramult      = 1.13
+        local versmult      = (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
+        if talent.deeperStratagem then dsmod = 1.05 else dsmod = 1 end 
+        return(
+                apMod * combo * rtcoef * auramult * dsmod * versmult
+                )
+    end
+local function Potionuse()
+	PotionName = Setting("HP Potion to use")
+	if PotionName == 1 then
+		PotionID = 118
+	end
+	if PotionName == 2 then
+		PotionID = 858
+	end
+	if PotionName == 3 then
+		PotionID = 929
+	end
+	if PotionName == 4 then
+		PotionID = 1710
+	end
+	if PotionName == 5 then
+		PotionID = 3928
+	end
+	if PotionName == 6 then
+		PotionID = 13446
+	end
+end
 local function Poison()
 
 	------------------
@@ -113,7 +163,7 @@ local function DEF()
 	-- Feint
 	if Setting("Feint") and Spell.Feint:IsReady() and Player.Power > 20 and Player.Combat then
 		for _,Unit in ipairs(Player:GetEnemies(5)) do
-			if Player:IsTanking(Unit) then
+			if Player:IsTanking(Target) then
 				if Spell.Feint:Cast() then
 					return
 				end
@@ -130,14 +180,31 @@ local function DEF()
 			end
 		end
 	end
+	-- Health Potions
+	
 
 end
 local function CDs()
 end
+local function UsePotion()
+	if Setting("Use HP Potion") then
+		if GetItemCount(PotionID) >= 1 and GetItemCooldown(PotionID) == 0 then
+			if HP <= Setting("Use Potion at #% HP") and Player.Combat then
+				name = GetItemInfo(PotionID)
+				RunMacroText("/use " .. name)
+				return true
+			end
+		end
+	end
+end
 
 function Rogue.Rotation()
     Locals()
+	Potionuse()
 	
+	if UsePotion() then
+		return true
+	end
 	if Player.Combat then
 		if DEF() then
 			return true
@@ -149,6 +216,15 @@ function Rogue.Rotation()
 			return true
 		end
 	end
+	
+	if Target and Debuff.Gouge:Exist(Target) then
+		print("123")
+    	RunMacroText("/stopattack")
+    	return true 
+    end
+	if GetKeyState(0x10) then
+        return true
+    end
 	-----------------
 	-- DPS --
 	-----------------
@@ -212,13 +288,13 @@ function Rogue.Rotation()
 		end
 	end
 	-- Adrenaline Rush
-	if Setting("Adrenaline Rush") == 2 and Spell.AdrenalineRush:IsReady() and Player.Combat or (Setting("Adrenaline Rush") == 3 and Enemy8YC > 1 and Player.Combat) then
+	if Setting("Adrenaline Rush") == 2 and Spell.AdrenalineRush:IsReady() and Player.Combat and Buff.SliceAndDice:Exist(Player) or (Setting("Adrenaline Rush") == 3 and Enemy8YC > 1 and Player.Combat and Buff.SliceAndDice:Exist(Player)) then
 		if Spell.AdrenalineRush:Cast(Player) then
 			return
 		end
 	end
 	-- Blade Flurry
-	if Setting("Blade Flurry") == 2 and Spell.BladeFlurry:IsReady() and Player.Power >= 25 and Player.Combat or (Setting("Blade Flurry") == 3 and Enemy8YC > 1 and Player.Combat and Player.Power >= 25) then
+	if Setting("Blade Flurry") == 2 and Spell.BladeFlurry:IsReady() and Player.Power >= 25 and Player.Combat and Buff.SliceAndDice:Exist(Player) or (Setting("Blade Flurry") == 3 and Enemy8YC > 1 and Player.Combat and Buff.SliceAndDice:Exist(Player) and Player.Power >= 25) then
 		if Spell.BladeFlurry:Cast(Player) then
 			return
 		end
@@ -265,15 +341,22 @@ function Rogue.Rotation()
 			end
 		end
 	end
+		-- Autoattack everything in range
+    if Setting("Auto Attack") and Target and Target.ValidEnemy and Target.Distance <5 then
+        StartAttack()
+	end
+	-- Stop until Swing
+	if Setting("Stop until swing") then
+    	if (Player.SwingMH > 0 and Player.SwingMH < 0.9 * UnitAttackSpeed("player") and (Player.Power < 80 or Player.SwingMH <= Player.NextTick)) and Target and Target.TTD and Target.TTD >= 2 then
+    		return true
+    	end
+    end
 		-- Spam Sinister Strike
 	if Setting("Sinister Strike") and Spell.SinisterStrike:IsReady() and Target and Target.ValidEnemy and Player.Power >= 40 and GetComboPoints("player", "target") < 5 then
 		if Spell.SinisterStrike:Cast(Target) then
 			return
 		end
 	end	
-	-- Autoattack everything in range
-    if Setting("Auto Attack") and Target and Target.ValidEnemy and Target.Distance <5 then
-        StartAttack()
-	end
+
 	
 end

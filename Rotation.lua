@@ -78,74 +78,88 @@ local function Poison()
 	------------------
 	--- Poisons --- 
 	------------------
-	if Setting("Poisons") == 2 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
+	if Setting("Poisons") == 2 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false and (not timeMH or DMW.Time - timeMH >= 5) then	
         RunMacroText("/use Instant Poison")
 		RunMacroText("/use 16")
+		timeMH = DMW.Time
             return 
-        end
-	if Setting("Poisons") == 2 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
+    end
+	if Setting("Poisons") == 2 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false and (not timeMH or DMW.Time - timeMH >= 5) then	
         RunMacroText("/use Instant Poison")
 		RunMacroText("/use 17")
-            return 
-        end
-	if Setting("Poisons") == 3 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
-        RunMacroText("/use Instant Poison II")
-		RunMacroText("/use 16")
-            return 
-        end
-	if Setting("Poisons") == 3 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
-        RunMacroText("/use Instant Poison II")
-		RunMacroText("/use 17")
-            return 
-        end	
-	if Setting("Poisons") == 4 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
-        RunMacroText("/use Instant Poison III")
-		RunMacroText("/use 16")
-            return 
-        end
-	if Setting("Poisons") == 4 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
-        RunMacroText("/use Instant Poison III")
-		RunMacroText("/use 17")
-            return 
-        end	
-	if Setting("Poisons") == 5 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
-        RunMacroText("/use Instant Poison IV")
-		RunMacroText("/use 16")
-            return 
-        end
-	if Setting("Poisons") == 5 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
-        RunMacroText("/use Instant Poison IV")
-		RunMacroText("/use 17")
-            return 
-        end	
-	if Setting("Poisons") == 6 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
-        RunMacroText("/use Instant Poison V")
-		RunMacroText("/use 16")
+		timeMH = DMW.Time
             return 
     end
-	if Setting("Poisons") == 6 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
-        RunMacroText("/use Instant Poison V")
-		RunMacroText("/use 17")
-            return 
-	end	
-	if Setting("Poisons") == 7 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false then	
-        RunMacroText("/use Instant Poison VI")
+	if Setting("Poisons") == 3 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison II")
 		RunMacroText("/use 16")
+		timeMH = DMW.Time
             return 
     end
-	if Setting("Poisons") == 7 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
-        RunMacroText("/use Instant Poison VI")
+	if Setting("Poisons") == 3 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison II")
 		RunMacroText("/use 17")
+		timeMH = DMW.Time
             return 
     end	
-	if Setting("Poisons") == 8 and not Spell.MindNumbingPoison:LastCast() and GetWeaponEnchantInfo() == false then	
-        RunMacroText("/use Mind-Numbing Poison III")
+	if Setting("Poisons") == 4 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison III")
 		RunMacroText("/use 16")
+		timeMH = DMW.Time
             return 
     end
-	if Setting("Poisons") == 8 and not Spell.CripplingPoison2:LastCast() and select(5, GetWeaponEnchantInfo()) == false then	
+	if Setting("Poisons") == 4 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison III")
+		RunMacroText("/use 17")
+		timeMH = DMW.Time
+            return 
+    end	
+	if Setting("Poisons") == 5 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison IV")
+		RunMacroText("/use 16")
+		timeMH = DMW.Time
+            return 
+    end
+	if Setting("Poisons") == 5 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison IV")
+		RunMacroText("/use 17")
+		timeMH = DMW.Time
+            return 
+    end	
+	if Setting("Poisons") == 6 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison V")
+		RunMacroText("/use 16")
+		timeMH = DMW.Time
+            return 
+	end
+	if Setting("Poisons") == 6 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison V")
+		RunMacroText("/use 17")
+		timeMH = DMW.Time
+            return 
+	end	
+	if Setting("Poisons") == 7 and not Spell.InstantPoison:LastCast() and GetWeaponEnchantInfo() == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison VI")
+		RunMacroText("/use 16")
+		timeMH = DMW.Time
+            return 
+    end
+	if Setting("Poisons") == 7 and not Spell.InstantPoison:LastCast() and select(5, GetWeaponEnchantInfo()) == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Instant Poison VI")
+		RunMacroText("/use 17")
+		timeMH = DMW.Time
+            return 
+    end	
+	if Setting("Poisons") == 8 and not Spell.MindNumbingPoison:LastCast() and GetWeaponEnchantInfo() == false and (not timeMH or DMW.Time - timeMH >= 5) then	
+        RunMacroText("/use Mind-Numbing Poison III")
+		RunMacroText("/use 16")
+		timeMH = DMW.Time
+            return 
+    end
+	if Setting("Poisons") == 8 and not Spell.CripplingPoison2:LastCast() and select(5, GetWeaponEnchantInfo()) == false and (not timeMH or DMW.Time - timeMH >= 5) then	
         RunMacroText("/use Crippling Poison II")
 		RunMacroText("/use 17")
+		timeMH = DMW.Time
             return 
     end	
 end

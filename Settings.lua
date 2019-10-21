@@ -40,7 +40,7 @@ function Rogue.Settings()
 	UI.AddToggle("Thistle Tea", "Use Thistle Tea")
 	UI.AddToggle("Use HP Potion",nil,false,true)
 	UI.AddDropdown("HP Potion to use", "Use HP Potion", {"Minor Healing Potion","Lesser Healing Potion","Healing Potion","Greater Healing Potion","Superior Healing Potion", "Major Healing Potion"}, "1",true)
-	UI.AddRange("se Potion at #% HP", nil, 10, 100, 5, 50, true)
+	UI.AddRange("Use Potion at #% HP", nil, 10, 100, 5, 50, true)
 	--UI.AddToggle("Gouge")
 	--UI.AddRange("Gouge Percent", nil, 0, 100, 1, 30)
 	

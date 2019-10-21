@@ -332,7 +332,7 @@ function Rogue.Rotation()
 	-- maintain SnD
 	if Setting("Slice and Dice") and Spell.SliceAndDice:IsReady() then
 		for _,Unit in ipairs(Player:GetEnemies(5)) do
-			if GetComboPoints("player", "target") > 0 and not Buff.SliceAndDice:Exist(Player) and Unit.TTD > 5 then
+			if GetComboPoints("player", "target") > 0 and Buff.SliceAndDice:Remain(Player) > 2 and Unit.TTD > 5 then
 				if Spell.SliceAndDice:Cast() then
 					return
 				end
@@ -360,10 +360,11 @@ function Rogue.Rotation()
         StartAttack()
 	end
 	-- Stop until Swing
-	if Setting("Stop until swing") then
-    	if (Player.SwingMH > 0 and Player.SwingMH < 0.9 * UnitAttackSpeed("player") and (Player.Power < 80 or Player.SwingMH <= Player.NextTick)) and Target and Target.TTD and Target.TTD >= 2 then
-    		return true
-    	end
+	if Setting("Stop until swing") then 
+        if (Player.SwingMH > 0 and Player.SwingMH < 0.9 * UnitAttackSpeed("player") and (((not Buff.AdrenalineRush:Exist(Player) and Player.Power < 60) or Player.Power < 80) or (Player.NextTick and Player.SwingMH <= Player.NextTick)))
+         and Target and Target.TTD and Target.TTD >= 2 then
+            return true
+        end
     end
 		-- Spam Sinister Strike
 	if Setting("Sinister Strike") and Spell.SinisterStrike:IsReady() and Target and Target.ValidEnemy and Player.Power >= 40 and GetComboPoints("player", "target") < 5 then

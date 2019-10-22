@@ -332,7 +332,7 @@ function Rogue.Rotation()
 	-- maintain SnD
 	if Setting("Slice and Dice") and Spell.SliceAndDice:IsReady() then
 		for _,Unit in ipairs(Player:GetEnemies(5)) do
-			if GetComboPoints("player", "target") > 0 and Buff.SliceAndDice:Remain(Player) > 2 and Unit.TTD > 5 then
+			if GetComboPoints("player", "target") > 0 and Buff.SliceAndDice:Remain(Player) < 2 and Unit.TTD > 5 then
 				if Spell.SliceAndDice:Cast() then
 					return
 				end

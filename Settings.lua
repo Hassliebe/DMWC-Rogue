@@ -19,7 +19,7 @@ function Rogue.Settings()
 	
     UI.AddHeader("|cffFF6EB4DPS")
     UI.AddToggle("Auto Attack", "Auto attack target in range", true)
-	UI.AddToggle("Stop until energy cap", nil, true)
+	UI.AddToggle("Stop until swing", nil, true)
 	UI.AddToggle("AutoStealth", nil, true)
     UI.AddToggle("Sinister Strike", nil, true)
     UI.AddToggle("Eviscerate", nil, true)

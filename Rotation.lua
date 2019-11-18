@@ -211,34 +211,8 @@ local function UsePotion()
 		end
 	end
 end
+local function CombatSwordPvE()
 
-function Rogue.Rotation()
-    Locals()
-	Potionuse()
-	
-	if UsePotion() then
-		return true
-	end
-	if Player.Combat then
-		if DEF() then
-			return true
-		end
-	end
-	
-	if not Player.Combat and not Player.Moving then
-		if Poison() then
-			return true
-		end
-	end
-	
-	if Target and Debuff.Gouge:Exist(Target) then
-		print("123")
-    	RunMacroText("/stopattack")
-    	return true 
-    end
-	if GetKeyState(0x10) then
-        return true
-    end
 	-----------------
 	-- DPS --
 	-----------------
@@ -277,26 +251,33 @@ function Rogue.Rotation()
 			return
 		end
 	end
+	-- Thistle Tea
+	if Setting("Thistle Tea") and Player.Power <= 5 and Player.Combat then
+			if GetItemCount(7676) >= 1 and GetItemCooldown(7676) == 0 then
+				RunMacroText("/use Thistle Tea")
+				return
+			end
+		end
 	-- Pick Pocket
-	if Setting("Pick Pocket") and Spell.PickPocket:IsReady() and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and Target.CreatureType == "Humanoid" then
+	if Setting("Pick Pocket") and Spell.PickPocket:IsReady() and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and Target.CreatureType == "Humanoid" and not Target.PickPocketed then
 		if Spell.PickPocket:Cast(Target) then
 			return
 		end
 	end
 	-- Cheap Shot Opener
-	if Setting("Opener") == 4 and Spell.CheapShot:IsReady() and Target and Target.ValidEnemy and Buff.Stealth:Exist(Player) then
+	if Setting("Opener") == 4 and Spell.CheapShot:IsReady() and Target and Target.ValidEnemy and Buff.Stealth:Exist(Player) and not Debuff.Sap:Exist(Target) then
 		if Spell.CheapShot:Cast(Target) then
 			return
 		end
 	end
 	--Ambush
-	if Setting("Opener") == 2 and Spell.Ambush:IsReady() and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
+	if Setting("Opener") == 2 and Spell.Ambush:IsReady() and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") and not Debuff.Sap:Exist(Target) then
 		if Spell.Ambush:Cast(Target) then
 			return
 		end
 	end
 	--Garrote
-	if Setting("Opener") == 3 and Spell.Garrote:IsReady() and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") then
+	if Setting("Opener") == 3 and Spell.Garrote:IsReady() and Buff.Stealth:Exist(Player) and Target and Target.ValidEnemy and ObjectIsBehind("player", "target") and not Debuff.Sap:Exist(Target) then
 		if Spell.Garrote:Cast(Target) then
 			return
 		end
@@ -372,6 +353,199 @@ function Rogue.Rotation()
 			return
 		end
 	end	
-
-	
 end
+local function SealFateDaggerPvE()
+end
+local function HemoPvP()
+if DMW.Player.Target and Target.ValidEnemy and Target.Player then
+		if Setting("ColdBlood 5pt Evis") then
+			if Player.Power <= 20 and Player.Combat then
+				if GetItemCount(7676) >= 1 and GetItemCooldown(7676) == 0 then
+					RunMacroText("/use Thistle Tea")
+					return
+				end
+			end
+			if not Buff.Stealth:Exist(Player) then
+				if Spell.Stealth:Cast(Player) then
+					return
+				end
+			end
+			if Buff.Stealth:Exist(Player) and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) then
+				if Spell.CheapShot:Cast(Target) then
+					return
+				end
+			end
+			if Player.Combat and GetComboPoints("player", "target") == 5 and Player.Power >= 35 then
+				if Spell.ColdBlood:Cast() then
+					return
+				end
+			end
+			if Player.Combat and Buff.ColdBlood:Exist(Player) and GetComboPoints("player", "target") == 5 and Player.Power >= 35 then
+				if Spell.Eviscerate:Cast(Target) then
+					return
+				end
+			end
+			if Player.Combat and Spell.CheapShot:LastCast() and Target.Class == "MAGE" and Target.Facing then
+				if Spell.Gouge:Cast(Target) then
+					return
+				end
+			end
+			if Player.Combat and GetComboPoints("player", "target") == 5 and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) and not Debuff.Gouge:Exist(Target) then
+				if Spell.Eviscerate:Cast(Target) then
+					return
+				end
+			end
+			if Player.Combat and Player.Power >= 35 and GetComboPoints("player", "target") < 5 and not Debuff.Blind:Exist(Target) and not Debuff.Sap:Exist(Target) then
+				if Spell.Hemorrhage:Cast(Target) then
+					return
+				end
+			end
+		end
+		if Player.Power <= 20 and Player.Combat then
+			if GetItemCount(7676) >= 1 and GetItemCooldown(7676) == 0 then
+				RunMacroText("/use Thistle Tea")
+				return
+			end
+		end
+		if not Buff.Stealth:Exist(Player) then
+			if Spell.Stealth:Cast(Player) then
+				return
+			end
+		end
+		if Buff.Stealth:Exist(Player) and Spell.CheapShot:IsReady() and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) then
+			if Spell.CheapShot:Cast(Target) then
+				return
+			end
+		end
+		if Player.Combat and Buff.ColdBlood:Exist(Player) and GetComboPoints("player", "target") >= 3 and Player.Power >= 35 then
+			if Spell.Eviscerate:Cast(Target) then
+				return
+			end
+		end
+		if Player.Combat and Target.Class == "ROGUE" then
+			if Debuff.CheapShot:Remain(Target) < 1 then
+				if Spell.KidneyShot:Cast(Target) then
+					return
+				end
+			end
+			if Spell.KidneyShot:LastCast() and Debuff.KidneyShot:Remain(Target) < 1 then
+				if Spell.ColdBlood:Cast() then
+					return
+				end
+			end
+			if Spell.ColdBlood:LastCast() then
+				if Spell.Eviscerate:Cast(Target) then
+					return
+				end
+			end
+			if Spell.Eviscerate:LastCast() then
+				StopAttack()
+				RunMacroText("/stopattack")
+				RunMacroText("/stopattack")
+				if Spell.Blind:Cast(Target) then
+					RunMacroText("/stopattack")
+					return
+				end 
+			end
+		end
+		if Player.Combat and Spell.CheapShot:LastCast() and Target.Class == "MAGE" and Target.Facing then
+			if Spell.Gouge:Cast(Target) then
+				return
+			end
+		end
+		if GetComboPoints("player", "target") == 4 and (Target.Class == "WARRIOR" or Target.Class == "PALADIN") and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) and not Debuff.Gouge:Exist(Target) then
+			if Spell.ExposeArmor:Cast(Target) then
+				return
+			end
+		end
+		if Player.Combat and Spell.ExposeArmor:LastCast() and (Target.Class == "WARRIOR" or Target.Class == "PALADIN") then
+			if Spell.ColdBlood:Cast() then
+				return
+			end
+		end
+		if Player.Combat and GetComboPoints("player", "target") >= 4 and not Debuff.CheapShot:Exist(Target) and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) and not Debuff.Gouge:Exist(Target) then
+			if Spell.KidneyShot:Cast(Target) then
+				return
+			end
+		end
+		if Player.Combat and Spell.Hemorrhage:LastCast() and Spell.KidneyShot:CD() > 1 and GetComboPoints("player", "target") == 3 then
+			if Spell.ColdBlood:Cast() then
+				return
+			end
+		end
+		if Player.Combat and GetComboPoints("player", "target") >= 3 and Spell.KidneyShot:CD() > 1 and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) and not Debuff.Gouge:Exist(Target) then
+			if Spell.Eviscerate:Cast(Target) then
+				return
+			end
+		end
+		if Player.Combat and Player.Power >= 35 and GetComboPoints("player", "target") < 5 and not Debuff.Blind:Exist(Target) and not Debuff.Sap:Exist(Target) then
+			if Spell.Hemorrhage:Cast(Target) then
+				return
+			end
+		end
+		if Player.Combat and Spell.Eviscerate:LastCast() and Player.Power >= 30 then
+			StopAttack()
+			RunMacroText("/stopattack")
+			if Spell.Blind:Cast(Target) then
+				return
+			end
+		end
+		if Spell.Blind:LastCast() and Spell.Stealth:IsReady() and not Player.Combat and not Buff.Stealth:Exist(Player) then
+			if Spell.Stealth:Cast() then
+				return
+			end
+		end
+	end
+end
+local function CombatPvP()
+end
+function Rogue.Rotation()
+    Locals()
+	Potionuse()
+	
+	if UsePotion() then
+		return true
+	end
+	if Player.Combat then
+		if DEF() then
+			return true
+		end
+	end
+	
+	if not Player.Combat and not Player.Moving then
+		if Poison() then
+			return true
+		end
+	end
+	
+	if Target and Debuff.Gouge:Exist(Target) then
+		print("123")
+    	RunMacroText("/stopattack")
+    	return true 
+    end
+	if GetKeyState(0x10) then
+        return true
+    end
+	if Setting("Combat Sword PvE") and not Setting("Seal Fate Dagger PvE") and not Setting("Hemo PvP") and not Setting("Combat PvP") then
+		if CombatSwordPvE() then
+			return true
+		end 
+	elseif Setting("Seal Fate Dagger PvE") and not Setting("Hemo PvP") and not Setting("Combat PvP") and not Setting("Combat Sword PvE") then
+		if SealFateDaggerPvE() then
+			return true
+		end 
+	elseif Setting("Hemo PvP") and not Setting("Seal Fater Dagger PvE") and not Setting("Combat PvP") and not Setting("Combat Sword PvE") then
+		if HemoPvP() then
+			return true
+		end
+	elseif Setting("Combat PvP") and not Setting("Seal Fater Dagger PvE") and not Setting("Hemo PvP") and not Setting("Combat Sword PvE") then
+		if CombatPvP() then
+			return true
+		end
+	elseif not Setting("Combat Sword PvE") and not Setting("Seal Fate Dagger PvE") and not Setting("Hemo PvP") and not Setting("Combat PvP") then
+		print ("Monkey needs to know how to fight. Please select a rotation in DMWC Settings")
+	else
+		print ("Monkey can only fight 1 Style. You have more than 1 rotation selected. Please select only 1")
+	end
+	 
+end -- Rotation EEEEEENNNNNND

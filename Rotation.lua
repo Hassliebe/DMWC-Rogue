@@ -198,6 +198,14 @@ local function DEF()
 	
 
 end
+local function OoCUtil()
+ -- Open Clams
+	if Setting("Open Clams") and not Player.Combat then
+		RunMacroText("/script l=5;m=0;f=string.find;for b=0,4,1 do for s=1,GetContainerNumSlots(b),1 do n=GetContainerItemLink(b,s);if n and f(n,\"Clam\")then if f(n,\"Clam \")or f(n,\"Clams\")then b=b else l=b;m=s;end;end;end;end;if l<5 and m>0 then UseContainerItem(l,m)end")
+		timeMH = DMW.Time
+		return
+	end
+end
 local function CDs()
 end
 local function UsePotion()
@@ -216,17 +224,6 @@ local function CombatSwordPvE()
 	-----------------
 	-- DPS --
 	-----------------
-	-- Dont attack while Gouge
-	--if Target and Target.ValidEnemy and Debuff.Gouge:Remain(Target) > 1 then
-	--	stopAttack()
-	--end
-	-- Sprint always
-	
-	-- Open Clams
-	if Setting("Open Clams") and not Player.Combat then
-		RunMacroText("/script l=5;m=0;f=string.find;for b=0,4,1 do for s=1,GetContainerNumSlots(b),1 do n=GetContainerItemLink(b,s);if n and f(n,\"Clam\")then if f(n,\"Clam \")or f(n,\"Clams\")then b=b else l=b;m=s;end;end;end;end;if l<5 and m>0 then UseContainerItem(l,m)end")
-			return
-	end
 	-- Kick (only target because CP)
 	if Setting("Kick") and Spell.Kick:IsReady() and Target and Target.ValidEnemy and Target:Interrupt() then
 		if Spell.Kick:Cast(Target) then
@@ -356,88 +353,157 @@ local function CombatSwordPvE()
 end
 local function SealFateDaggerPvE()
 end
+local function Stunlock()
+	-- we open with Cheapshot
+	if Setting("Stun Lock") then
+		if Buff.Stealth:Exist(Player) and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) then
+			if Spell.CheapShot:Cast(Target) then
+				return
+			end
+		end
+		-- We Kidneyshot before Cheapshot runs out
+		if Debuff.CheapShot:Remain(Target) == 1 then
+			if Spell.KidneyShot:Cast(Target) then
+				return
+			end
+		end
+		-- while kidneyed we Hemo for CP
+		if Player.Combat and Player.Power >= 35 and GetComboPoints("player", "target") < 5 and not Debuff.Blind:Exist(Target) and not Debuff.Sap:Exist(Target) then
+			if Spell.Hemorrhage:Cast(Target) then
+				return
+			end
+		end
+		-- before kidney runs out we Blind and stop attacks
+		if Debuff.KidneyShot:Remain(Target) == 1 then
+			StopAttack()
+			RunMacroText("/stopattack")
+			if Spell.Blind:Cast(Target) then
+				return
+			end
+		end
+		-- We restealth while blind
+		if not Buff.Stealth:Exist(Player) then
+			if Spell.Stealth:Cast(Player) then
+				return
+			end
+		end
+		-- then we sap target
+		if Debuff.Blind:Remain(Target) == 1 and Buff.Stealth:Exist(Player) then
+			if Spell.Sap:Cast(Target) then
+			end
+		end
+		-- if the players hp is < 35% we coldblood to finish
+		if Player.Combat and Target.Health <= 35 then
+			if Spell.ColdBlood:Cast() then
+			end
+		end
+		-- and then we 100% crit that bitch with evis
+		if Player.Combat and Buff.ColdBlood:Exist(Player) and GetComboPoints("player", "target") == 5 and Player.Power >= 35 then
+			if Spell.Eviscerate:Cast(Target) then
+				return
+			end
+		end
+	end
+end
 local function HemoPvP()
-if DMW.Player.Target and Target.ValidEnemy and Target.Player then
+	if DMW.Player.Target and Target.ValidEnemy and Target.Player then
+		-- this part only runs when we want to coldblood evis with 5cp always
 		if Setting("ColdBlood 5pt Evis") then
+			-- -- if we ever run out of energy during our pvp we use thistle tea
 			if Player.Power <= 20 and Player.Combat then
 				if GetItemCount(7676) >= 1 and GetItemCooldown(7676) == 0 then
 					RunMacroText("/use Thistle Tea")
 					return
 				end
 			end
+			-- we need to stealth first derp
 			if not Buff.Stealth:Exist(Player) then
 				if Spell.Stealth:Cast(Player) then
 					return
 				end
 			end
+			-- We open with cheapshot 
 			if Buff.Stealth:Exist(Player) and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) then
 				if Spell.CheapShot:Cast(Target) then
 					return
 				end
 			end
+			-- if we get to 5cp we coldblood
 			if Player.Combat and GetComboPoints("player", "target") == 5 and Player.Power >= 35 then
 				if Spell.ColdBlood:Cast() then
 					return
 				end
 			end
+			-- then evis dem bitches good
 			if Player.Combat and Buff.ColdBlood:Exist(Player) and GetComboPoints("player", "target") == 5 and Player.Power >= 35 then
 				if Spell.Eviscerate:Cast(Target) then
 					return
 				end
 			end
+			-- if we cheapshotted a mage and hes facing us we gouge 
 			if Player.Combat and Spell.CheapShot:LastCast() and Target.Class == "MAGE" and Target.Facing then
 				if Spell.Gouge:Cast(Target) then
 					return
 				end
 			end
+			-- if we get to 5cp without coldblood we evis anyways
 			if Player.Combat and GetComboPoints("player", "target") == 5 and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) and not Debuff.Gouge:Exist(Target) then
 				if Spell.Eviscerate:Cast(Target) then
 					return
 				end
 			end
+			-- building CP with hemo
 			if Player.Combat and Player.Power >= 35 and GetComboPoints("player", "target") < 5 and not Debuff.Blind:Exist(Target) and not Debuff.Sap:Exist(Target) then
 				if Spell.Hemorrhage:Cast(Target) then
 					return
 				end
 			end
 		end
+		-- this part runs even without the 5cp coldblood evis setting // Use thistle tea if we low on energy
 		if Player.Power <= 20 and Player.Combat then
 			if GetItemCount(7676) >= 1 and GetItemCooldown(7676) == 0 then
 				RunMacroText("/use Thistle Tea")
 				return
 			end
 		end
+		-- stealth first
 		if not Buff.Stealth:Exist(Player) then
 			if Spell.Stealth:Cast(Player) then
 				return
 			end
 		end
+		-- cheapshot opener
 		if Buff.Stealth:Exist(Player) and Spell.CheapShot:IsReady() and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) then
 			if Spell.CheapShot:Cast(Target) then
 				return
 			end
 		end
+		-- we evis > 3 cp if we have coldblood
 		if Player.Combat and Buff.ColdBlood:Exist(Player) and GetComboPoints("player", "target") >= 3 and Player.Power >= 35 then
 			if Spell.Eviscerate:Cast(Target) then
 				return
 			end
 		end
+		-- if we duel another rogue then we follow our cheapshot with Kidneyshot
 		if Player.Combat and Target.Class == "ROGUE" then
 			if Debuff.CheapShot:Remain(Target) < 1 then
 				if Spell.KidneyShot:Cast(Target) then
 					return
 				end
 			end
+			-- when kidney is about to run out we coldblood
 			if Spell.KidneyShot:LastCast() and Debuff.KidneyShot:Remain(Target) < 1 then
 				if Spell.ColdBlood:Cast() then
 					return
 				end
 			end
+			-- after coldblood we evis
 			if Spell.ColdBlood:LastCast() then
 				if Spell.Eviscerate:Cast(Target) then
 					return
 				end
 			end
+			-- after evis we try to reset by stopping attacks and then blind
 			if Spell.Eviscerate:LastCast() then
 				StopAttack()
 				RunMacroText("/stopattack")
@@ -448,41 +514,49 @@ if DMW.Player.Target and Target.ValidEnemy and Target.Player then
 				end 
 			end
 		end
+		-- even without the 5cp evis cb setting we gouge mages after cheapshot
 		if Player.Combat and Spell.CheapShot:LastCast() and Target.Class == "MAGE" and Target.Facing then
 			if Spell.Gouge:Cast(Target) then
 				return
 			end
 		end
+		-- if we fight plate wearers we want to expose Armor first with 4cp
 		if GetComboPoints("player", "target") == 4 and (Target.Class == "WARRIOR" or Target.Class == "PALADIN") and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) and not Debuff.Gouge:Exist(Target) then
 			if Spell.ExposeArmor:Cast(Target) then
 				return
 			end
 		end
+		-- after we exposed armor and still fighting we coldblood
 		if Player.Combat and Spell.ExposeArmor:LastCast() and (Target.Class == "WARRIOR" or Target.Class == "PALADIN") then
 			if Spell.ColdBlood:Cast() then
 				return
 			end
 		end
+		-- when we have more than 4 cp we kidney if its ready
 		if Player.Combat and GetComboPoints("player", "target") >= 4 and not Debuff.CheapShot:Exist(Target) and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) and not Debuff.Gouge:Exist(Target) then
 			if Spell.KidneyShot:Cast(Target) then
 				return
 			end
 		end
+		-- if we have 3 cp from hemo and no kidney is ready then we coldblood
 		if Player.Combat and Spell.Hemorrhage:LastCast() and Spell.KidneyShot:CD() > 1 and GetComboPoints("player", "target") == 3 then
 			if Spell.ColdBlood:Cast() then
 				return
 			end
 		end
+		-- and evis
 		if Player.Combat and GetComboPoints("player", "target") >= 3 and Spell.KidneyShot:CD() > 1 and not Debuff.Sap:Exist(Target) and not Debuff.Blind:Exist(Target) and not Debuff.Gouge:Exist(Target) then
 			if Spell.Eviscerate:Cast(Target) then
 				return
 			end
 		end
+		-- build cp with hemo
 		if Player.Combat and Player.Power >= 35 and GetComboPoints("player", "target") < 5 and not Debuff.Blind:Exist(Target) and not Debuff.Sap:Exist(Target) then
 			if Spell.Hemorrhage:Cast(Target) then
 				return
 			end
 		end
+		-- if we evis'd and have enough energy we stop attacking and blind
 		if Player.Combat and Spell.Eviscerate:LastCast() and Player.Power >= 30 then
 			StopAttack()
 			RunMacroText("/stopattack")
@@ -490,6 +564,7 @@ if DMW.Player.Target and Target.ValidEnemy and Target.Player then
 				return
 			end
 		end
+		-- after we blinded we re-stealth and start from the beginning
 		if Spell.Blind:LastCast() and Spell.Stealth:IsReady() and not Player.Combat and not Buff.Stealth:Exist(Player) then
 			if Spell.Stealth:Cast() then
 				return
@@ -511,7 +586,16 @@ function Rogue.Rotation()
 			return true
 		end
 	end
-	
+	if not Player.Combat then
+		if OoCUtil() then
+			return true
+		end
+	end
+	if Setting("Stun Lock") then
+		if Stunlock() then
+			return true
+		end
+	end
 	if not Player.Combat and not Player.Moving then
 		if Poison() then
 			return true

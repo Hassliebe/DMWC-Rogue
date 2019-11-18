@@ -37,6 +37,7 @@ function Rogue.Settings()
 	UI.AddHeader("Utility for Rotations")
 	UI.AddToggle("ColdBlood 5pt Evis", "ColdBlood Evis Logic", nil, true)
 	UI.AddToggle("Thistle Tea", "Use Thistle Tea")
+	UI.AddToggle("Stun Lock", "Tries to keep a target Stunlocked for as long as possible")
 	
 	UI.AddHeader("|cffFF6EB4Defensives")
 	UI.AddToggle("Vanish", "Vanish to lose aggro")

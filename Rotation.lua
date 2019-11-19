@@ -393,7 +393,7 @@ local function Stunlock()
 			end
 		end
 		-- if the players hp is < 35% we coldblood to finish
-		if Player.Combat and Target.Health <= 35 then
+		if Player.Combat and Target and Target.ValidEnemy and Target.Health <= 35 then
 			if Spell.ColdBlood:Cast() then
 			end
 		end
